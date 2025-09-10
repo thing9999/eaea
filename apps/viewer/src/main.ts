@@ -1,4 +1,4 @@
-import { Engine, Scene, ArcRotateCamera, HemisphericLight, Vector3, Color4, DirectionalLight, Texture, StandardMaterial, MeshBuilder } from "@babylonjs/core";
+import { Axis, Space , Engine, Scene, ArcRotateCamera, HemisphericLight, Vector3, Color4, DirectionalLight, Texture, StandardMaterial, MeshBuilder } from "@babylonjs/core";
 import { SceneLoader } from "@babylonjs/core/Loading/sceneLoader";
 import "@babylonjs/loaders";
 import "./style.css";
@@ -9,6 +9,11 @@ import specularTexture from "../public/specular2.jpg";
 
 // DOMContentLoaded 이후 실행
 window.addEventListener("DOMContentLoaded", () => {
+  let satellite: any = null; // 최상단에 선언
+
+  // 회전 버튼 이벤트 리스너
+  const rotateStep = Math.PI / 36;
+  
   const canvas = document.getElementById("renderCanvas") as HTMLCanvasElement;
   if (!canvas) {
     throw new Error("Canvas element with id 'renderCanvas' not found.");
@@ -70,11 +75,13 @@ window.addEventListener("DOMContentLoaded", () => {
     (meshes) => {
       const xx = 0.004
       const satellite = meshes[0];
+      const rotateStep = Math.PI / 4; // 회전할 각도 설정 (5도)
       const moveStep = planetRadius * 0.05; // 이동할 거리 설정 (지구 반지름의 5%)
       if (meshes.length > 0) {
         
         meshes[0].position = Vector3.Zero();
         satellite.position = new Vector3(planetRadius * 2.1, 1, 1); // 지구 중심에서 오른쪽으로 이동
+        // satellite.setPivotPoint()
         satellite.scaling = new Vector3(planetRadius * xx, planetRadius * xx, planetRadius * xx); // 크기 확대
         orbitalCamera.setTarget(Vector3.Zero());
       }
@@ -100,6 +107,20 @@ window.addEventListener("DOMContentLoaded", () => {
         }
       });
 
+      document.getElementById("btn-rotate-up")?.addEventListener("click", () => {
+        satellite.rotate(Axis.X, Math.PI / 64, Space.LOCAL);
+      });
+
+      document.getElementById("btn-rotate-down")?.addEventListener("click", () => {
+        satellite.rotate(Axis.X, -Math.PI / 64, Space.LOCAL);
+      });
+      document.getElementById("btn-rotate-left")?.addEventListener("click", () => {
+        satellite.rotate(Axis.Y, Math.PI / 64, Space.LOCAL);
+      });
+      document.getElementById("btn-rotate-right")?.addEventListener("click", () => {
+        satellite.rotate(Axis.Y, -Math.PI / 64, Space.LOCAL);
+      });
+
 //       document.getElementById("btn-rotate")?.addEventListener("click", () => {
 //   if (satellite) satellite.rotation.y += Math.PI / 18;
 // });
@@ -117,7 +138,7 @@ window.addEventListener("DOMContentLoaded", () => {
 async function connectBluetooth() {
   try {
     const device = await navigator.bluetooth.requestDevice({
-      filters: [{ services: ['battery_service'] }], // 원하는 서비스 UUID로 변경
+      // filters: [{ services: ['battery_service'] }], // 원하는 서비스 UUID로 변경
       optionalServices: ['device_information']
     });
       const server = await device.gatt?.connect();
