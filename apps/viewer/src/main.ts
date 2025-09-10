@@ -69,18 +69,79 @@ window.addEventListener("DOMContentLoaded", () => {
     scene,
     (meshes) => {
       const xx = 0.004
+      const satellite = meshes[0];
+      const moveStep = planetRadius * 0.05; // 이동할 거리 설정 (지구 반지름의 5%)
       if (meshes.length > 0) {
-        const satellite = meshes[0];
+        
         meshes[0].position = Vector3.Zero();
         satellite.position = new Vector3(planetRadius * 2.1, 1, 1); // 지구 중심에서 오른쪽으로 이동
         satellite.scaling = new Vector3(planetRadius * xx, planetRadius * xx, planetRadius * xx); // 크기 확대
         orbitalCamera.setTarget(Vector3.Zero());
       }
+
+      document.getElementById("btn-up")?.addEventListener("click", () => {
+        if (satellite) {
+          satellite.position.y += moveStep;
+        }
+      });
+      document.getElementById("btn-down")?.addEventListener("click", () => {
+        if (satellite) {
+          satellite.position.y -= moveStep;
+        }
+      });
+      document.getElementById("btn-left")?.addEventListener("click", () => {
+        if (satellite) {
+          satellite.position.x -= moveStep;
+        }
+      });
+      document.getElementById("btn-right")?.addEventListener("click", () => {
+        if (satellite) {
+          satellite.position.x += moveStep;
+        }
+      });
+
+//       document.getElementById("btn-rotate")?.addEventListener("click", () => {
+//   if (satellite) satellite.rotation.y += Math.PI / 18;
+// });
+
     }
   );
 
   engine.runRenderLoop(() => {
     scene.render();
   });
+
+  
 });
+
+async function connectBluetooth() {
+  try {
+    const device = await navigator.bluetooth.requestDevice({
+      filters: [{ services: ['battery_service'] }], // 원하는 서비스 UUID로 변경
+      optionalServices: ['device_information']
+    });
+      const server = await device.gatt?.connect();
+    const service = await server?.getPrimaryService('your_service_uuid');
+    const characteristic = await service?.getCharacteristic('your_characteristic_uuid');
+
+    // 알림(Notify) 활성화
+    await characteristic?.startNotifications();
+    characteristic?.addEventListener('characteristicvaluechanged', (event: any) => {
+      const value = event.target.value;
+      // 예시: Uint8Array로 변환 후 출력
+      const arr = new Uint8Array(value.buffer);
+      console.log('블루투스 메시지:', arr);
+      // 화면에 출력하려면 document.getElementById("output").innerText = arr.toString();
+    });
+    // 서비스/특성 접근 및 데이터 처리
+    // 예: const service = await server.getPrimaryService('battery_service');
+  } catch (error) {
+    console.error('Bluetooth 연결 실패:', error);
+  }
+}
+
+// 버튼 이벤트
+document.getElementById('btn-bluetooth')?.addEventListener('click', connectBluetooth);
+
+
 

@@ -7,7 +7,13 @@
     <title>Vite + TS</title>
   </head>
   <body>
-    
+    <div id="controls" style="position: absolute; top: 20px; left: 20px; z-index: 10;">
+  <button id="btn-up">↑</button><br>
+  <button id="btn-left">←</button>
+  <button id="btn-right">→</button><br>
+  <button id="btn-down">↓</button>
+  <button id="btn-bluetooth">Bluetooth 연결</button>
+</div>
     <canvas id="renderCanvas" style="width:100vw; height:100vh;"></canvas>
     <script type="module" src="/src/main.ts"></script>
   </body>
