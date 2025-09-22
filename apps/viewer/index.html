@@ -1,4 +1,4 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -7,20 +7,44 @@
     <title>Vite + TS</title>
   </head>
   <body>
-    <div id="controls" style="position: absolute; top: 20px; left: 20px; z-index: 10;">
-  <button id="btn-up">↑</button><br>
-  <button id="btn-left">←</button>
-  <button id="btn-right">→</button><br>
-  <button id="btn-down">↓</button>
-  <button id="btn-rotate-left">좌회전</button>
-  <button id="btn-rotate-right">우회전</button>
-  <button id="btn-rotate-up">상회전</button>
-  <button id="btn-rotate-down">하회전</button>
-  <button id="btn-stop">정지</button><br>
+    <div id="controls" style="position: absolute; top: 20px; left: 20px; z-index: 10">
+      <button id="btn-up">↑</button><br />
+      <button id="btn-left">←</button>
+      <button id="btn-right">→</button><br />
+      <button id="btn-down">↓</button>
+      <button id="btn-rotate-left">좌회전</button>
+      <button id="btn-rotate-right">우회전</button>
+      <button id="btn-rotate-up">상회전</button>
+      <button id="btn-rotate-down">하회전</button>
+      <button id="btn-stop">정지</button><br />
 
-  <button id="btn-bluetooth">Bluetooth 연결</button>
-</div>
-    <canvas id="renderCanvas" style="width:100vw; height:100vh;"></canvas>
+      <button id="btn-bluetooth">Bluetooth 연결</button>
+    </div>
+
+    <div
+      id="popup"
+      style="
+        position: absolute;
+        display: block;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(255, 255, 255, 0.7);
+        padding: 20px;
+
+        z-index: 20;
+        border: 1px solid #ffffff;
+        width: 500px;
+        height: 500px;
+      "
+    >
+      <!-- <p id="popup-message">메시지</p> -->
+      <canvas id="myChart"></canvas>
+      <button id="popup-close">닫기</button>
+    </div>
+
+    <canvas id="renderCanvas" style="width: 100vw; height: 100vh"></canvas>
+
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
