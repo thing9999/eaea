@@ -23,6 +23,15 @@ import Chart from 'chart.js/auto';
 
 // DOMContentLoaded 이후 실행
 window.addEventListener('DOMContentLoaded', () => {
+  // roll(X), pitch(Y), yaw(Z) 값으로 위성 회전 제어 함수
+  function moveSatelliteByRPY(roll: number, pitch: number, yaw: number) {
+    if ((window as any).satellite) {
+      const sat = (window as any).satellite;
+      sat.rotation.x = roll;
+      sat.rotation.y = pitch;
+      sat.rotation.z = yaw;
+    }
+  }
   // 1초마다 위성을 랜덤하게 x축으로 조금씩 움직임
 
   // Chart.js 차트 생성
@@ -89,12 +98,12 @@ window.addEventListener('DOMContentLoaded', () => {
 
   const earth = MeshBuilder.CreateSphere(
     'Earth',
-    { segments: 32, diameter: planetRadius * 2 },
+    { segments: 32, diameter: planetRadius * 13 },
     scene
   );
   earth.rotation.x = Math.PI; // textures are always upside down on sphere for some reason...
   earth.rotation.y = Math.PI / 2;
-
+  earth.position = new Vector3(0, -planetRadius * 7, 0);
   const earthMaterial = new StandardMaterial('earthMaterial', scene);
   earthMaterial.diffuseTexture = new Texture(diffuseTexture, scene);
   earthMaterial.emissiveTexture = new Texture(emissiveTexture, scene);
