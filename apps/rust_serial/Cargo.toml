@@ -1,0 +1,12 @@
+[package]
+name = "rust_serial"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+serialport = "4.7.3"
+tokio = { version = "1.0", features = ["full"] }
+tokio-tungstenite = "0.20"
+futures-util = "0.3"
+tungstenite = "0.28.0"
+url = "2.5.7"

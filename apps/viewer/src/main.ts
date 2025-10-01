@@ -111,17 +111,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
   earth.material = earthMaterial;
 
-  /**
-   * end
-   */
-  // const camera = new ArcRotateCamera(
-  //   "camera",
-  //   Math.PI / 2,
-  //   Math.PI / 2.5,
-  //   5000, // 반지름(거리) 값을 10 → 20 등으로 늘려보세요
-  //   Vector3.Zero(),
-  //   scene
-  // );
   orbitalCamera.attachControl(canvas, true);
   new HemisphericLight('light', new Vector3(1, 1, 0), scene);
 
@@ -139,21 +128,21 @@ window.addEventListener('DOMContentLoaded', () => {
       orbitalCamera.setTarget(Vector3.Zero());
     }
 
-    let t = 0;
-    const orbitRadius = planetRadius * 2.1; // 궤도 반지름
-    const orbitSpeed = 0.01; // 속도(라디안/프레임)
+    // let t = 0;
+    // const orbitRadius = planetRadius * 2.1; // 궤도 반지름
+    // const orbitSpeed = 0.01; // 속도(라디안/프레임)
 
-    setInterval(() => {
-      t += orbitSpeed;
-      if ((window as any).satellite) {
-        const x = orbitRadius * Math.cos(t);
-        const y = orbitRadius * Math.sin(t) * 0.2; // y축은 살짝만 변화(경사 궤도)
-        const z = orbitRadius * Math.sin(t);
-        (window as any).satellite.position.x = x;
-        (window as any).satellite.position.y = y;
-        (window as any).satellite.position.z = z;
-      }
-    }, 16); // 약 60fps
+    // setInterval(() => {
+    //   t += orbitSpeed;
+    //   if ((window as any).satellite) {
+    //     const x = orbitRadius * Math.cos(t);
+    //     const y = orbitRadius * Math.sin(t) * 0.2; // y축은 살짝만 변화(경사 궤도)
+    //     const z = orbitRadius * Math.sin(t);
+    //     (window as any).satellite.position.x = x;
+    //     (window as any).satellite.position.y = y;
+    //     (window as any).satellite.position.z = z;
+    //   }
+    // }, 16); // 약 60fps
 
     document.getElementById('btn-up')?.addEventListener('click', () => {
       if (satellite) {
@@ -231,24 +220,54 @@ document.getElementById('btn-bluetooth')?.addEventListener('click', connectBluet
 
 // WebSocket 연결
 const ws = new WebSocket('ws://localhost:8080');
+// 이전 회전값 저장용 변수
+let prevX = 0,
+  prevY = 0,
+  prevZ = 0;
+const ROTATE_THRESHOLD = 0.01; // 오차 허용 최소값 (라디안)
+const ROTATE_MAX = 10; // 오차 허용 최대값
 ws.onmessage = function (event) {
-  // 메시지에서 숫자만 추출 (예: "value:123.45" 또는 "123.45")
-  console.log(event.data.split(' '));
-  const value = event.data.split(' ')[26];
-  // const value = match ? parseFloat(match[0]) : NaN;
-  const chart = (window as any).chart; // window에서 가져옴
-  console.log('Received value:', value);
-  if (!isNaN(value) && chart) {
+  // 메시지를 공백으로 split
+  let arr = event.data.split(' ');
+  // 첫 배열의 'M' 제거
+  if (arr[0] === 'M') arr.shift();
+  // x, y, z 값 추출 및 적용
+  const x = parseFloat(arr[0]);
+  const y = parseFloat(arr[1]);
+  const z = parseFloat(arr[2]);
+  const satellite = (window as any).satellite;
+  if (satellite && !isNaN(x) && !isNaN(y) && !isNaN(z)) {
+    // 이전 값과의 차이만큼만 회전 적용 (오차 범위 내 변화는 무시)
+    const dx = x - prevX;
+    const dy = y - prevY;
+    const dz = z - prevZ;
+    if (Math.abs(dx) > ROTATE_THRESHOLD && Math.abs(dx) < ROTATE_MAX) {
+      satellite.rotate(Axis.X, dx / 64, Space.LOCAL);
+      prevX = x;
+    }
+    if (Math.abs(dy) > ROTATE_THRESHOLD && Math.abs(dy) < ROTATE_MAX) {
+      satellite.rotate(Axis.Y, dy / 64, Space.LOCAL);
+      prevY = y;
+    }
+    if (Math.abs(dz) > ROTATE_THRESHOLD && Math.abs(dz) < ROTATE_MAX) {
+      satellite.rotate(Axis.Z, dz / 64, Space.LOCAL);
+      prevZ = z;
+    }
+    console.log('위성 회전 적용(delta):', dx, dy, dz);
+  } else {
+    console.log('위성 적용 실패:', arr, x, y, z, satellite);
+  }
+
+  // 기존 차트 로직 유지 (원하면 제거 가능)
+  const chart = (window as any).chart;
+  if (!isNaN(x) && chart) {
     const now = new Date();
     chart.data.labels.push(now.toLocaleTimeString());
-    chart.data.datasets[0].data.push(value);
+    chart.data.datasets[0].data.push(x);
     if (chart.data.labels.length > 30) {
       chart.data.labels.shift();
       chart.data.datasets[0].data.shift();
     }
-    console.log(chart.data.datasets[0].data);
-    // 배열 길이 맞추기
-
     chart.update();
   }
 };
