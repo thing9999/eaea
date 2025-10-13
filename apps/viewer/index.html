@@ -12,38 +12,122 @@
       <button id="btn-left">←</button>
       <button id="btn-right">→</button><br />
       <button id="btn-down">↓</button>
-      <button id="btn-rotate-left">좌회전</button>
-      <button id="btn-rotate-right">우회전</button>
-      <button id="btn-rotate-up">상회전</button>
-      <button id="btn-rotate-down">하회전</button>
+      <button id="btn-rotate-left">좌회전(Y-)</button>
+      <button id="btn-rotate-right">우회전(Y+)</button><br />
+      <button id="btn-rotate-up">상회전(X-)</button>
+      <button id="btn-rotate-down">하회전(X+)</button><br />
+      <button id="btn-rotate-z-left">Z축회전-</button>
+      <button id="btn-rotate-z-right">Z축회전+</button><br />
       <button id="btn-stop">정지</button><br />
 
-      <button id="btn-bluetooth">Bluetooth 연결</button>
+      <!-- <button id="btn-bluetooth">Bluetooth 연결</button> -->
     </div>
 
+    <!-- 우측 차트 패널 -->
     <div
-      id="popup"
+      id="charts-panel"
       style="
         position: absolute;
-        display: block;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: rgba(255, 255, 255, 0.7);
-        padding: 20px;
-
-        z-index: 20;
-        border: 1px solid #ffffff;
-        width: 500px;
-        height: 500px;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 100vh;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 10;
+        overflow-y: auto;
+        padding: 10px;
       "
     >
-      <!-- <p id="popup-message">메시지</p> -->
-      <canvas id="myChart"></canvas>
-      <button id="popup-close">닫기</button>
+      <div
+        style="
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 10px;
+        "
+      >
+        <h3 style="color: white; margin: 0">센서 데이터</h3>
+        <button
+          id="toggle-all-charts"
+          style="
+            background: #444;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+          "
+        >
+          전체 접기
+        </button>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-header">
+          <span style="color: white">Chart 1</span>
+          <button class="toggle-btn" data-chart="1">접기</button>
+        </div>
+        <canvas id="chart1" width="260" height="120"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-header">
+          <span style="color: white">Chart 2</span>
+          <button class="toggle-btn" data-chart="2">접기</button>
+        </div>
+        <canvas id="chart2" width="260" height="120"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-header">
+          <span style="color: white">Chart 3</span>
+          <button class="toggle-btn" data-chart="3">접기</button>
+        </div>
+        <canvas id="chart3" width="260" height="120"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-header">
+          <span style="color: white">Chart 4</span>
+          <button class="toggle-btn" data-chart="4">접기</button>
+        </div>
+        <canvas id="chart4" width="260" height="120"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-header">
+          <span style="color: white">Chart 5</span>
+          <button class="toggle-btn" data-chart="5">접기</button>
+        </div>
+        <canvas id="chart5" width="260" height="120"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-header">
+          <span style="color: white">Chart 6</span>
+          <button class="toggle-btn" data-chart="6">접기</button>
+        </div>
+        <canvas id="chart6" width="260" height="120"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-header">
+          <span style="color: white">Chart 7</span>
+          <button class="toggle-btn" data-chart="7">접기</button>
+        </div>
+        <canvas id="chart7" width="260" height="120"></canvas>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-header">
+          <span style="color: white">Chart 8</span>
+          <button class="toggle-btn" data-chart="8">접기</button>
+        </div>
+        <canvas id="chart8" width="260" height="120"></canvas>
+      </div>
     </div>
 
-    <canvas id="renderCanvas" style="width: 100vw; height: 100vh"></canvas>
+    <canvas id="renderCanvas" style="width: calc(100vw - 300px); height: 100vh"></canvas>
 
     <script type="module" src="/src/main.ts"></script>
   </body>

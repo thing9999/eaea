@@ -34,28 +34,140 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   // 1초마다 위성을 랜덤하게 x축으로 조금씩 움직임
 
-  // Chart.js 차트 생성
-  let chart: Chart | null = null;
-  function createChart() {
-    const canvas = document.getElementById('myChart') as HTMLCanvasElement;
-    if (!canvas) return;
-    chart = new Chart(canvas, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [
-          {
-            label: '실시간 데이터',
-            data: [],
-            borderColor: 'blue',
-            fill: false,
+  // 8개 Chart.js 차트 생성
+  const charts: Chart[] = [];
+  function createCharts() {
+    const chartLabels = ['X축', 'Y축', 'Z축', '센서1', '센서2', '센서3', '센서4', '센서5'];
+    const colors = ['red', 'green', 'blue', 'orange', 'purple', 'pink', 'cyan', 'yellow'];
+
+    for (let i = 1; i <= 8; i++) {
+      const canvas = document.getElementById(`chart${i}`) as HTMLCanvasElement;
+      if (canvas) {
+        const chart = new Chart(canvas, {
+          type: 'line',
+          data: {
+            labels: [],
+            datasets: [
+              {
+                label: chartLabels[i - 1],
+                data: [],
+                borderColor: colors[i - 1],
+                backgroundColor: colors[i - 1] + '20',
+                fill: false,
+                tension: 0.1,
+              },
+            ],
           },
-        ],
-      },
-    });
-    (window as any).chart = chart; // window에 등록
+          options: {
+            responsive: false,
+            maintainAspectRatio: false,
+            scales: {
+              x: { display: false },
+              y: {
+                beginAtZero: false,
+                grid: { color: '#444' },
+                ticks: { color: 'white', font: { size: 10 } },
+              },
+            },
+            plugins: {
+              legend: {
+                labels: { color: 'white', font: { size: 10 } },
+              },
+            },
+          },
+        });
+        charts.push(chart);
+      }
+    }
+    (window as any).charts = charts; // window에 등록
   }
-  createChart();
+  createCharts();
+
+  // 차트 토글 기능 - 더 안정적인 이벤트 처리
+  function setupToggleButtons() {
+    console.log('Setting up toggle buttons...');
+    const toggleButtons = document.querySelectorAll('.toggle-btn');
+    console.log('Found toggle buttons:', toggleButtons.length);
+
+    toggleButtons.forEach((button, index) => {
+      console.log(`Setting up button ${index}:`, button);
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('Toggle button clicked:', e.target);
+
+        const target = e.target as HTMLElement;
+        const container = target.closest('.chart-container');
+        console.log('Found container:', container);
+
+        if (container) {
+          const wasCollapsed = container.classList.contains('collapsed');
+          container.classList.toggle('collapsed');
+          const isNowCollapsed = container.classList.contains('collapsed');
+
+          target.textContent = isNowCollapsed ? '펼치기' : '접기';
+          console.log(
+            `Chart ${target.getAttribute('data-chart')}: ${wasCollapsed} -> ${isNowCollapsed}`
+          );
+
+          // 캔버스 직접 제어로 확실하게 처리
+          const canvas = container.querySelector('canvas');
+          if (canvas) {
+            canvas.style.display = isNowCollapsed ? 'none' : 'block';
+            console.log('Canvas display set to:', canvas.style.display);
+          }
+        }
+      });
+    });
+  }
+
+  // 전체 차트 토글 기능
+  function setupAllChartsToggle() {
+    const toggleAllBtn = document.getElementById('toggle-all-charts');
+    console.log('Setting up all charts toggle button:', toggleAllBtn);
+
+    if (toggleAllBtn) {
+      let allCollapsed = false;
+      toggleAllBtn.addEventListener('click', () => {
+        console.log('All charts toggle clicked, current state:', allCollapsed);
+
+        const containers = document.querySelectorAll('.chart-container');
+        const toggleButtons = document.querySelectorAll('.toggle-btn');
+        const canvases = document.querySelectorAll('.chart-container canvas');
+
+        if (allCollapsed) {
+          // 전체 펼치기
+          containers.forEach((container) => container.classList.remove('collapsed'));
+          toggleButtons.forEach((btn) => (btn.textContent = '접기'));
+          canvases.forEach((canvas) => ((canvas as HTMLElement).style.display = 'block'));
+          toggleAllBtn.textContent = '전체 접기';
+        } else {
+          // 전체 접기
+          containers.forEach((container) => container.classList.add('collapsed'));
+          toggleButtons.forEach((btn) => (btn.textContent = '펼치기'));
+          canvases.forEach((canvas) => ((canvas as HTMLElement).style.display = 'none'));
+          toggleAllBtn.textContent = '전체 펼치기';
+        }
+        allCollapsed = !allCollapsed;
+        console.log(`모든 차트 ${allCollapsed ? '접힘' : '펼쳐짐'}`);
+      });
+    }
+  }
+
+  // DOM 완전 로드 후 버튼 이벤트 설정 - 여러 번 시도
+  function initializeToggleFunctions() {
+    setupToggleButtons();
+    setupAllChartsToggle();
+  }
+
+  // 즉시 한 번 실행
+  initializeToggleFunctions();
+
+  // 지연 후 다시 실행 (차트 생성 완료 후)
+  setTimeout(initializeToggleFunctions, 500);
+
+  // 페이지 완전 로드 후에도 한 번 더
+  window.addEventListener('load', initializeToggleFunctions);
 
   // Babylon.js 기본 세팅
   let satellite: any = null;
@@ -118,12 +230,11 @@ window.addEventListener('DOMContentLoaded', () => {
     satellite = meshes[0];
     (window as any).satellite = satellite;
     const xx = 0.004;
-    const rotateStep = Math.PI / 4; // 회전할 각도 설정 (5도)
+    // const rotateStep = Math.PI / 4; // 회전할 각도 설정 (5도)
     const moveStep = planetRadius * 0.05; // 이동할 거리 설정 (지구 반지름의 5%)
     if (meshes.length > 0) {
-      meshes[0].position = Vector3.Zero();
-      satellite.position = new Vector3(planetRadius * 2.1, 1, 1); // 지구 중심에서 오른쪽으로 이동
-      // satellite.setPivotPoint()
+      meshes[0].position = Vector3.Zero(); // 위성을 중심으로 위치 조정
+      satellite.position = Vector3.Zero(); // 위성을 정중앙에 배치
       satellite.scaling = new Vector3(planetRadius * xx, planetRadius * xx, planetRadius * xx); // 크기 확대
       orbitalCamera.setTarget(Vector3.Zero());
     }
@@ -178,6 +289,12 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-rotate-right')?.addEventListener('click', () => {
       satellite.rotate(Axis.Y, -Math.PI / 64, Space.LOCAL);
     });
+    document.getElementById('btn-rotate-z-left')?.addEventListener('click', () => {
+      satellite.rotate(Axis.Z, Math.PI / 64, Space.LOCAL);
+    });
+    document.getElementById('btn-rotate-z-right')?.addEventListener('click', () => {
+      satellite.rotate(Axis.Z, -Math.PI / 64, Space.LOCAL);
+    });
 
     //       document.getElementById("btn-rotate")?.addEventListener("click", () => {
     //   if (satellite) satellite.rotation.y += Math.PI / 18;
@@ -190,29 +307,28 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 async function connectBluetooth() {
-  try {
-    const device = await navigator.bluetooth.requestDevice({
-      // filters: [{ services: ['battery_service'] }], // 원하는 서비스 UUID로 변경
-      optionalServices: ['device_information'],
-    });
-    const server = await device.gatt?.connect();
-    const service = await server?.getPrimaryService('your_service_uuid');
-    const characteristic = await service?.getCharacteristic('your_characteristic_uuid');
-
-    // 알림(Notify) 활성화
-    await characteristic?.startNotifications();
-    characteristic?.addEventListener('characteristicvaluechanged', (event: any) => {
-      const value = event.target.value;
-      // 예시: Uint8Array로 변환 후 출력
-      const arr = new Uint8Array(value.buffer);
-      console.log('블루투스 메시지:', arr);
-      // 화면에 출력하려면 document.getElementById("output").innerText = arr.toString();
-    });
-    // 서비스/특성 접근 및 데이터 처리
-    // 예: const service = await server.getPrimaryService('battery_service');
-  } catch (error) {
-    console.error('Bluetooth 연결 실패:', error);
-  }
+  // try {
+  //   const device = await navigator.bluetooth.requestDevice({
+  //     // filters: [{ services: ['battery_service'] }], // 원하는 서비스 UUID로 변경
+  //     optionalServices: ['device_information'],
+  //   });
+  //   const server = await device.gatt?.connect();
+  //   const service = await server?.getPrimaryService('your_service_uuid');
+  //   const characteristic = await service?.getCharacteristic('your_characteristic_uuid');
+  //   // 알림(Notify) 활성화
+  //   await characteristic?.startNotifications();
+  //   characteristic?.addEventListener('characteristicvaluechanged', (event: any) => {
+  //     const value = event.target.value;
+  //     // 예시: Uint8Array로 변환 후 출력
+  //     const arr = new Uint8Array(value.buffer);
+  //     console.log('블루투스 메시지:', arr);
+  //     // 화면에 출력하려면 document.getElementById("output").innerText = arr.toString();
+  //   });
+  //   // 서비스/특성 접근 및 데이터 처리
+  //   // 예: const service = await server.getPrimaryService('battery_service');
+  // } catch (error) {
+  //   console.error('Bluetooth 연결 실패:', error);
+  // }
 }
 
 // 버튼 이벤트
@@ -258,16 +374,25 @@ ws.onmessage = function (event) {
     console.log('위성 적용 실패:', arr, x, y, z, satellite);
   }
 
-  // 기존 차트 로직 유지 (원하면 제거 가능)
-  const chart = (window as any).chart;
-  if (!isNaN(x) && chart) {
-    const now = new Date();
-    chart.data.labels.push(now.toLocaleTimeString());
-    chart.data.datasets[0].data.push(x);
-    if (chart.data.labels.length > 30) {
-      chart.data.labels.shift();
-      chart.data.datasets[0].data.shift();
+  // 8개 차트에 데이터 업데이트
+  const charts = (window as any).charts;
+  if (charts && arr.length >= 8) {
+    const now = new Date().toLocaleTimeString();
+
+    // 각 차트에 해당하는 데이터 추가
+    for (let i = 0; i < Math.min(8, arr.length); i++) {
+      const value = parseFloat(arr[i]);
+      if (!isNaN(value) && charts[i]) {
+        charts[i].data.labels.push(now);
+        charts[i].data.datasets[0].data.push(value);
+
+        // 최대 30개 데이터만 유지
+        if (charts[i].data.labels.length > 30) {
+          charts[i].data.labels.shift();
+          charts[i].data.datasets[0].data.shift();
+        }
+        charts[i].update('none'); // 애니메이션 없이 업데이트
+      }
     }
-    chart.update();
   }
 };
