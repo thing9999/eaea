@@ -357,18 +357,16 @@ ws.onmessage = function (event) {
     const dx = x - prevX;
     const dy = y - prevY;
     const dz = z - prevZ;
-    if (Math.abs(dx) > ROTATE_THRESHOLD && Math.abs(dx) < ROTATE_MAX) {
-      satellite.rotate(Axis.X, dx / 64, Space.LOCAL);
-      prevX = x;
-    }
-    if (Math.abs(dy) > ROTATE_THRESHOLD && Math.abs(dy) < ROTATE_MAX) {
-      satellite.rotate(Axis.Y, dy / 64, Space.LOCAL);
-      prevY = y;
-    }
-    if (Math.abs(dz) > ROTATE_THRESHOLD && Math.abs(dz) < ROTATE_MAX) {
-      satellite.rotate(Axis.Z, dz / 64, Space.LOCAL);
-      prevZ = z;
-    }
+
+    satellite.rotate(Axis.X, dx / 64, Space.LOCAL);
+    prevX = x;
+
+    satellite.rotate(Axis.Y, dy / 64, Space.LOCAL);
+    prevY = y;
+
+    satellite.rotate(Axis.Z, dz / 64, Space.LOCAL);
+    prevZ = z;
+
     console.log('위성 회전 적용(delta):', dx, dy, dz);
   } else {
     console.log('위성 적용 실패:', arr, x, y, z, satellite);
