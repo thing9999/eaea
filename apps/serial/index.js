@@ -29,13 +29,11 @@ port.on('open', () => {
 
 port.on('data', (data) => {
   const msg = data.toString();
-
-  console.log(msg.toString());
+  // 시리얼데이터 받은 콘솔 출력
+  // console.log(msg.toString());
   // 연결된 모든 클라이언트에게 메시지 전송
   wss.clients.forEach((client) => {
     if (client.readyState === 1) {
-      port.write('1', (err) => {});
-      // WebSocket.OPEN
       client.send(msg);
     }
   });
@@ -48,8 +46,17 @@ port.on('error', (err) => {
 wss.on('connection', (ws) => {
   console.log('Client connected');
   ws.on('message', (message) => {
-    // console.log('Received from client:', message.toString());
-    ws.send('Echo: ' + message);
+    console.log(message.toString());
+    // websocket으로 받은 메시지를 시리얼 포트로 전송
+    port.write(message, (err) => {
+      if (err) {
+        console.error('Error writing to serial:', err.message);
+      } else {
+        console.log('Sent to serial:', message.toString());
+      }
+    });
+    // 필요하다면 클라이언트에 에코도 보냄
+    // ws.send('Echo: ' + message);
   });
   ws.on('close', () => {
     console.log('Client disconnected');

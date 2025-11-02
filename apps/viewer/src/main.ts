@@ -24,54 +24,108 @@ import Chart from 'chart.js/auto'; // Chart.js 라이브러리
 
 // DOMContentLoaded 이벤트 발생 시 실행
 window.addEventListener('DOMContentLoaded', () => {
-  // 8개의 Chart.js 차트를 생성하는 함수
+  // X, Y, Z를 하나의 차트에, 나머지 센서값은 각각 개별 차트로 표시
   const charts: Chart[] = [];
   function createCharts() {
-    const chartLabels = ['X축', 'Y축', 'Z축', '센서1', '센서2', '센서3', '센서4', '센서5'];
-    const colors = ['red', 'green', 'blue', 'orange', 'purple', 'pink', 'cyan', 'yellow'];
-
-    for (let i = 1; i <= 8; i++) {
+    // chart1: X, Y, Z를 한 차트에 표시
+    const canvas1 = document.getElementById('chart1') as HTMLCanvasElement;
+    if (canvas1) {
+      const chart = new Chart(canvas1, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: 'X축',
+              data: [],
+              borderColor: 'red',
+              backgroundColor: 'red20',
+              fill: false,
+              tension: 0.1,
+            },
+            {
+              label: 'Y축',
+              data: [],
+              borderColor: 'green',
+              backgroundColor: 'green20',
+              fill: false,
+              tension: 0.1,
+            },
+            {
+              label: 'Z축',
+              data: [],
+              borderColor: 'blue',
+              backgroundColor: 'blue20',
+              fill: false,
+              tension: 0.1,
+            },
+          ],
+        },
+        options: {
+          responsive: false,
+          maintainAspectRatio: false,
+          scales: {
+            x: { display: false },
+            y: {
+              beginAtZero: false,
+              grid: { color: '#444' },
+              ticks: { color: 'white', font: { size: 10 } },
+            },
+          },
+          plugins: {
+            legend: {
+              labels: { color: 'white', font: { size: 10 } },
+            },
+          },
+        },
+      });
+      charts.push(chart);
+    }
+    // chart2~chart8: 센서1~센서6
+    const chartLabels = ['센서1', '센서2', '센서3', '센서4', '센서5', '센서6'];
+    const colors = ['orange', 'purple', 'pink', 'cyan', 'yellow', 'gray'];
+    for (let i = 2; i <= 7; i++) {
       const canvas = document.getElementById(`chart${i}`) as HTMLCanvasElement;
       if (canvas) {
         const chart = new Chart(canvas, {
-          type: 'line', // 라인 차트
+          type: 'line',
           data: {
-            labels: [], // X축 레이블 초기화
+            labels: [],
             datasets: [
               {
-                label: chartLabels[i - 1], // 데이터셋 레이블
-                data: [], // 초기 데이터
-                borderColor: colors[i - 1], // 선 색상
-                backgroundColor: colors[i - 1] + '20', // 배경 색상
-                fill: false, // 채우기 비활성화
-                tension: 0.1, // 곡선의 장력
+                label: chartLabels[i - 2],
+                data: [],
+                borderColor: colors[i - 2],
+                backgroundColor: colors[i - 2] + '20',
+                fill: false,
+                tension: 0.1,
               },
             ],
           },
           options: {
-            responsive: false, // 반응형 비활성화
-            maintainAspectRatio: false, // 비율 유지 비활성화
+            responsive: false,
+            maintainAspectRatio: false,
             scales: {
-              x: { display: false }, // X축 숨김
+              x: { display: false },
               y: {
-                beginAtZero: false, // Y축 0부터 시작 비활성화
-                grid: { color: '#444' }, // 그리드 색상
-                ticks: { color: 'white', font: { size: 10 } }, // 눈금 스타일
+                beginAtZero: false,
+                grid: { color: '#444' },
+                ticks: { color: 'white', font: { size: 10 } },
               },
             },
             plugins: {
               legend: {
-                labels: { color: 'white', font: { size: 10 } }, // 범례 스타일
+                labels: { color: 'white', font: { size: 10 } },
               },
             },
           },
         });
-        charts.push(chart); // 생성된 차트를 배열에 추가
+        charts.push(chart);
       }
     }
-    (window as any).charts = charts; // window 객체에 차트 배열 등록
+    (window as any).charts = charts;
   }
-  createCharts(); // 차트 생성 함수 호출
+  createCharts();
 
   // 차트 토글 버튼 설정 함수
   function setupToggleButtons() {
@@ -221,45 +275,42 @@ window.addEventListener('DOMContentLoaded', () => {
     }
 
     // 위성 이동 및 회전 버튼 이벤트 설정
-    document.getElementById('btn-up')?.addEventListener('click', () => {
-      if (satellite) {
-        satellite.position.y += moveStep;
-      }
+    document.getElementById('x-plus')?.addEventListener('click', () => {
+      sendWSMessage('1');
     });
-    document.getElementById('btn-down')?.addEventListener('click', () => {
-      if (satellite) {
-        satellite.position.y -= moveStep;
-      }
+    document.getElementById('x-minus')?.addEventListener('click', () => {
+      sendWSMessage('2');
     });
-    document.getElementById('btn-left')?.addEventListener('click', () => {
-      if (satellite) {
-        satellite.position.x -= moveStep;
-      }
+    document.getElementById('y-plus')?.addEventListener('click', () => {
+      sendWSMessage('3');
     });
-    document.getElementById('btn-right')?.addEventListener('click', () => {
-      if (satellite) {
-        satellite.position.x += moveStep;
-      }
+    document.getElementById('y-minus')?.addEventListener('click', () => {
+      sendWSMessage('4');
+    });
+    document.getElementById('z-plus')?.addEventListener('click', () => {
+      sendWSMessage('5');
+    });
+    document.getElementById('z-minus')?.addEventListener('click', () => {
+      sendWSMessage('6');
     });
 
-    document.getElementById('btn-rotate-up')?.addEventListener('click', () => {
-      satellite.rotate(Axis.X, Math.PI / 64, Space.LOCAL);
+    document.getElementById('x-rplus')?.addEventListener('click', () => {
+      sendWSMessage('7');
     });
-
-    document.getElementById('btn-rotate-down')?.addEventListener('click', () => {
-      satellite.rotate(Axis.X, -Math.PI / 64, Space.LOCAL);
+    document.getElementById('x-rminus')?.addEventListener('click', () => {
+      sendWSMessage('8');
     });
-    document.getElementById('btn-rotate-left')?.addEventListener('click', () => {
-      satellite.rotate(Axis.Y, Math.PI / 64, Space.LOCAL);
+    document.getElementById('y-rplus')?.addEventListener('click', () => {
+      sendWSMessage('9');
     });
-    document.getElementById('btn-rotate-right')?.addEventListener('click', () => {
-      satellite.rotate(Axis.Y, -Math.PI / 64, Space.LOCAL);
+    document.getElementById('y-rminus')?.addEventListener('click', () => {
+      sendWSMessage('10');
     });
-    document.getElementById('btn-rotate-z-left')?.addEventListener('click', () => {
-      satellite.rotate(Axis.Z, Math.PI / 64, Space.LOCAL);
+    document.getElementById('z-rplus')?.addEventListener('click', () => {
+      sendWSMessage('11');
     });
-    document.getElementById('btn-rotate-z-right')?.addEventListener('click', () => {
-      satellite.rotate(Axis.Z, -Math.PI / 64, Space.LOCAL);
+    document.getElementById('z-rminus')?.addEventListener('click', () => {
+      sendWSMessage('12');
     });
   });
 
@@ -270,11 +321,20 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // WebSocket 연결 설정
 const ws = new WebSocket('ws://localhost:8080');
+
+// 웹소켓으로 메시지 전송하는 함수
+function sendWSMessage(msg: string) {
+  if (ws.readyState === WebSocket.OPEN) {
+    ws.send(msg);
+    console.log('WS 메시지 전송:', msg);
+  } else {
+    console.warn('WS 연결이 열려있지 않습니다.');
+  }
+}
+(window as any).sendWSMessage = sendWSMessage; // window에 등록
 let prevX = 0,
   prevY = 0,
   prevZ = 0;
-const ROTATE_THRESHOLD = 0.01; // 회전 오차 허용 최소값
-const ROTATE_MAX = 10; // 회전 오차 허용 최대값
 
 // WebSocket 메시지 수신 처리
 ws.onmessage = function (event) {
@@ -307,18 +367,39 @@ ws.onmessage = function (event) {
   const charts = (window as any).charts;
   if (charts && arr.length >= 8) {
     const now = new Date().toLocaleTimeString();
-
-    for (let i = 0; i < Math.min(8, arr.length); i++) {
-      const value = parseFloat(arr[i]);
-      if (!isNaN(value) && charts[i]) {
-        charts[i].data.labels.push(now);
-        charts[i].data.datasets[0].data.push(value);
-
-        if (charts[i].data.labels.length > 30) {
-          charts[i].data.labels.shift();
-          charts[i].data.datasets[0].data.shift();
+    // chart1: X, Y, Z를 한 차트에 표시
+    const chart1 = charts[0];
+    if (chart1) {
+      chart1.data.labels.push(now);
+      // X, Y, Z 각각의 dataset에 값 추가
+      for (let i = 0; i < 3; i++) {
+        const value = parseFloat(arr[i]);
+        if (!isNaN(value)) {
+          chart1.data.datasets[i].data.push(value);
+          // 최대 30개 데이터만 유지
+          if (chart1.data.datasets[i].data.length > 30) {
+            chart1.data.datasets[i].data.shift();
+          }
         }
-        charts[i].update('none');
+      }
+      // 라벨도 30개만 유지
+      if (chart1.data.labels.length > 30) {
+        chart1.data.labels.shift();
+      }
+      chart1.update('none');
+    }
+    // chart2~chart7: 센서1~센서6
+    for (let i = 1; i <= 6; i++) {
+      const chart = charts[i];
+      const value = parseFloat(arr[i + 2]); // arr[3]~arr[8]
+      if (chart && !isNaN(value)) {
+        chart.data.labels.push(now);
+        chart.data.datasets[0].data.push(value);
+        if (chart.data.labels.length > 30) {
+          chart.data.labels.shift();
+          chart.data.datasets[0].data.shift();
+        }
+        chart.update('none');
       }
     }
   }
