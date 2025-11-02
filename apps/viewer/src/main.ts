@@ -24,10 +24,10 @@ import Chart from 'chart.js/auto'; // Chart.js 라이브러리
 
 // DOMContentLoaded 이벤트 발생 시 실행
 window.addEventListener('DOMContentLoaded', () => {
-  // X, Y, Z를 하나의 차트에, 나머지 센서값은 각각 개별 차트로 표시
+  // X, Y, Z / 센서1~3 / 센서4~6을 각각 한 차트에 묶어서 표시
   const charts: Chart[] = [];
   function createCharts() {
-    // chart1: X, Y, Z를 한 차트에 표시
+    // chart1: X, Y, Z
     const canvas1 = document.getElementById('chart1') as HTMLCanvasElement;
     if (canvas1) {
       const chart = new Chart(canvas1, {
@@ -72,56 +72,110 @@ window.addEventListener('DOMContentLoaded', () => {
               ticks: { color: 'white', font: { size: 10 } },
             },
           },
-          plugins: {
-            legend: {
-              labels: { color: 'white', font: { size: 10 } },
-            },
-          },
+          plugins: { legend: { labels: { color: 'white', font: { size: 10 } } } },
         },
       });
       charts.push(chart);
     }
-    // chart2~chart8: 센서1~센서6
-    const chartLabels = ['센서1', '센서2', '센서3', '센서4', '센서5', '센서6'];
-    const colors = ['orange', 'purple', 'pink', 'cyan', 'yellow', 'gray'];
-    for (let i = 2; i <= 7; i++) {
-      const canvas = document.getElementById(`chart${i}`) as HTMLCanvasElement;
-      if (canvas) {
-        const chart = new Chart(canvas, {
-          type: 'line',
-          data: {
-            labels: [],
-            datasets: [
-              {
-                label: chartLabels[i - 2],
-                data: [],
-                borderColor: colors[i - 2],
-                backgroundColor: colors[i - 2] + '20',
-                fill: false,
-                tension: 0.1,
-              },
-            ],
-          },
-          options: {
-            responsive: false,
-            maintainAspectRatio: false,
-            scales: {
-              x: { display: false },
-              y: {
-                beginAtZero: false,
-                grid: { color: '#444' },
-                ticks: { color: 'white', font: { size: 10 } },
-              },
+    // chart2: 센서1~3
+    const canvas2 = document.getElementById('chart2') as HTMLCanvasElement;
+    if (canvas2) {
+      const chart = new Chart(canvas2, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: '센서1',
+              data: [],
+              borderColor: 'orange',
+              backgroundColor: 'orange20',
+              fill: false,
+              tension: 0.1,
             },
-            plugins: {
-              legend: {
-                labels: { color: 'white', font: { size: 10 } },
-              },
+            {
+              label: '센서2',
+              data: [],
+              borderColor: 'purple',
+              backgroundColor: 'purple20',
+              fill: false,
+              tension: 0.1,
+            },
+            {
+              label: '센서3',
+              data: [],
+              borderColor: 'pink',
+              backgroundColor: 'pink20',
+              fill: false,
+              tension: 0.1,
+            },
+          ],
+        },
+        options: {
+          responsive: false,
+          maintainAspectRatio: false,
+          scales: {
+            x: { display: false },
+            y: {
+              beginAtZero: false,
+              grid: { color: '#444' },
+              ticks: { color: 'white', font: { size: 10 } },
             },
           },
-        });
-        charts.push(chart);
-      }
+          plugins: { legend: { labels: { color: 'white', font: { size: 10 } } } },
+        },
+      });
+      charts.push(chart);
+    }
+    // chart3: 센서4~6
+    const canvas3 = document.getElementById('chart3') as HTMLCanvasElement;
+    if (canvas3) {
+      const chart = new Chart(canvas3, {
+        type: 'line',
+        data: {
+          labels: [],
+          datasets: [
+            {
+              label: '센서4',
+              data: [],
+              borderColor: 'cyan',
+              backgroundColor: 'cyan20',
+              fill: false,
+              tension: 0.1,
+            },
+            {
+              label: '센서5',
+              data: [],
+              borderColor: 'yellow',
+              backgroundColor: 'yellow20',
+              fill: false,
+              tension: 0.1,
+            },
+            {
+              label: '센서6',
+              data: [],
+              borderColor: 'gray',
+              backgroundColor: 'gray20',
+              fill: false,
+              tension: 0.1,
+            },
+          ],
+        },
+        options: {
+          responsive: false,
+          maintainAspectRatio: false,
+          scales: {
+            x: { display: false },
+            y: {
+              beginAtZero: false,
+              grid: { color: '#444' },
+              ticks: { color: 'white', font: { size: 10 } },
+            },
+          },
+          plugins: { legend: { labels: { color: 'white', font: { size: 10 } } } },
+        },
+      });
+      charts.push(chart);
     }
     (window as any).charts = charts;
   }
@@ -274,6 +328,24 @@ window.addEventListener('DOMContentLoaded', () => {
       orbitalCamera.setTarget(Vector3.Zero()); // 카메라 타겟 설정
     }
 
+    document.getElementById('close-btn')?.addEventListener('click', () => {
+      const pannel = document.getElementById('chart-panel');
+      if (pannel) {
+        if (pannel.style.display === 'none') {
+          pannel.style.display = 'block';
+        } else {
+          pannel.style.display = 'none';
+        }
+      }
+    });
+
+    document.getElementById('open-pannel')?.addEventListener('click', () => {
+      const pannel = document.getElementById('chart-panel');
+      if (pannel) {
+        pannel.style.display = 'block';
+      }
+    });
+
     // 위성 이동 및 회전 버튼 이벤트 설정
     document.getElementById('x-plus')?.addEventListener('click', () => {
       sendWSMessage('1');
@@ -367,40 +439,59 @@ ws.onmessage = function (event) {
   const charts = (window as any).charts;
   if (charts && arr.length >= 8) {
     const now = new Date().toLocaleTimeString();
-    // chart1: X, Y, Z를 한 차트에 표시
+    // chart1: X, Y, Z
     const chart1 = charts[0];
     if (chart1) {
       chart1.data.labels.push(now);
-      // X, Y, Z 각각의 dataset에 값 추가
       for (let i = 0; i < 3; i++) {
         const value = parseFloat(arr[i]);
         if (!isNaN(value)) {
           chart1.data.datasets[i].data.push(value);
-          // 최대 30개 데이터만 유지
           if (chart1.data.datasets[i].data.length > 30) {
             chart1.data.datasets[i].data.shift();
           }
         }
       }
-      // 라벨도 30개만 유지
       if (chart1.data.labels.length > 30) {
         chart1.data.labels.shift();
       }
       chart1.update('none');
     }
-    // chart2~chart7: 센서1~센서6
-    for (let i = 1; i <= 6; i++) {
-      const chart = charts[i];
-      const value = parseFloat(arr[i + 2]); // arr[3]~arr[8]
-      if (chart && !isNaN(value)) {
-        chart.data.labels.push(now);
-        chart.data.datasets[0].data.push(value);
-        if (chart.data.labels.length > 30) {
-          chart.data.labels.shift();
-          chart.data.datasets[0].data.shift();
+    // chart2: 센서1~3
+    const chart2 = charts[1];
+    if (chart2) {
+      chart2.data.labels.push(now);
+      for (let i = 0; i < 3; i++) {
+        const value = parseFloat(arr[i + 3]); // arr[3], arr[4], arr[5]
+        if (!isNaN(value)) {
+          chart2.data.datasets[i].data.push(value);
+          if (chart2.data.datasets[i].data.length > 30) {
+            chart2.data.datasets[i].data.shift();
+          }
         }
-        chart.update('none');
       }
+      if (chart2.data.labels.length > 30) {
+        chart2.data.labels.shift();
+      }
+      chart2.update('none');
+    }
+    // chart3: 센서4~6
+    const chart3 = charts[2];
+    if (chart3) {
+      chart3.data.labels.push(now);
+      for (let i = 0; i < 3; i++) {
+        const value = parseFloat(arr[i + 6]); // arr[6], arr[7], arr[8]
+        if (!isNaN(value)) {
+          chart3.data.datasets[i].data.push(value);
+          if (chart3.data.datasets[i].data.length > 30) {
+            chart3.data.datasets[i].data.shift();
+          }
+        }
+      }
+      if (chart3.data.labels.length > 30) {
+        chart3.data.labels.shift();
+      }
+      chart3.update('none');
     }
   }
 };
