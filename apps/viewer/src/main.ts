@@ -365,7 +365,6 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('z-minus')?.addEventListener('click', () => {
       sendWSMessage('6');
     });
-
     document.getElementById('x-rplus')?.addEventListener('click', () => {
       sendWSMessage('7');
     });
@@ -383,6 +382,25 @@ window.addEventListener('DOMContentLoaded', () => {
     });
     document.getElementById('z-rminus')?.addEventListener('click', () => {
       sendWSMessage('12');
+    });
+
+    document.getElementById('x-plus1')?.addEventListener('click', () => {
+      satellite.rotate(Axis.X, Math.PI / 64, Space.LOCAL);
+    });
+    document.getElementById('x-minus1')?.addEventListener('click', () => {
+      satellite.rotate(Axis.X, -Math.PI / 64, Space.LOCAL);
+    });
+    document.getElementById('y-plus1')?.addEventListener('click', () => {
+      satellite.rotate(Axis.Y, Math.PI / 64, Space.LOCAL);
+    });
+    document.getElementById('y-minus1')?.addEventListener('click', () => {
+      satellite.rotate(Axis.Y, -Math.PI / 64, Space.LOCAL);
+    });
+    document.getElementById('z-plus1')?.addEventListener('click', () => {
+      satellite.rotate(Axis.Z, Math.PI / 64, Space.LOCAL);
+    });
+    document.getElementById('z-minus1')?.addEventListener('click', () => {
+      satellite.rotate(Axis.Z, -Math.PI / 64, Space.LOCAL);
     });
   });
 
