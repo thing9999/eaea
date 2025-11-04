@@ -1,1 +1,1 @@
-{ "port": 8080, "com": "COM12" }
+{ "port": 8080, "com": "COM12", "split": 10, "cr": "\n\r" }

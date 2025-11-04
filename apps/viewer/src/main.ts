@@ -385,22 +385,34 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 
     document.getElementById('x-plus1')?.addEventListener('click', () => {
-      satellite.rotate(Axis.X, Math.PI / 64, Space.LOCAL);
+      if (satellite) {
+        satellite.position.x += moveStep;
+      }
     });
     document.getElementById('x-minus1')?.addEventListener('click', () => {
-      satellite.rotate(Axis.X, -Math.PI / 64, Space.LOCAL);
+      if (satellite) {
+        satellite.position.x -= moveStep;
+      }
     });
     document.getElementById('y-plus1')?.addEventListener('click', () => {
-      satellite.rotate(Axis.Y, Math.PI / 64, Space.LOCAL);
+      if (satellite) {
+        satellite.position.y += moveStep;
+      }
     });
     document.getElementById('y-minus1')?.addEventListener('click', () => {
-      satellite.rotate(Axis.Y, -Math.PI / 64, Space.LOCAL);
+      if (satellite) {
+        satellite.position.y -= moveStep;
+      }
     });
     document.getElementById('z-plus1')?.addEventListener('click', () => {
-      satellite.rotate(Axis.Z, Math.PI / 64, Space.LOCAL);
+      if (satellite) {
+        satellite.position.z += moveStep;
+      }
     });
     document.getElementById('z-minus1')?.addEventListener('click', () => {
-      satellite.rotate(Axis.Z, -Math.PI / 64, Space.LOCAL);
+      if (satellite) {
+        satellite.position.z -= moveStep;
+      }
     });
   });
 

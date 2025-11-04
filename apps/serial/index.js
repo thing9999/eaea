@@ -4,7 +4,7 @@ import { readFileSync } from 'fs';
 const data = JSON.parse(readFileSync('./port.json', 'utf8'));
 
 // 카운트 필터
-const splitCount = 10;
+const splitCount = data.split;
 
 console.log(data);
 const wss = new WebSocketServer({ port: data.port });
@@ -37,9 +37,11 @@ port.on('data', (data) => {
   // 연결된 모든 클라이언트에게 메시지 전송
   wss.clients.forEach((client) => {
     if (client.readyState === 1) {
-      if (message.toString().split(' ').length === splitCount) {
-        client.send(msg);
-      }
+      message.splint(data.cr).forEach((msg) => {
+        if (msg.toString().split(' ').length === splitCount) {
+          client.send(msg);
+        }
+      });
     }
   });
 });
@@ -63,8 +65,6 @@ wss.on('connection', (ws) => {
         console.log('Sent to serial:', message.toString());
       }
     });
-    // 필요하다면 클라이언트에 에코도 보냄
-    // ws.send('Echo: ' + message);
   });
   ws.on('close', () => {
     console.log('Client disconnected');
