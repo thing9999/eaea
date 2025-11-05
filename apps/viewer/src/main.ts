@@ -13,6 +13,8 @@ import {
   StandardMaterial,
   MeshBuilder,
 } from '@babylonjs/core';
+import * as baby from '@babylonjs/core';
+
 import { SceneLoader } from '@babylonjs/core/Loading/sceneLoader';
 import '@babylonjs/loaders'; // Babylon.js 로더 확장 모듈
 import './style.css'; // 스타일 시트 가져오기
@@ -21,6 +23,7 @@ import emissiveTexture from '../public/night2.jpg'; // 야간 텍스처
 import specularTexture from '../public/specular2.jpg'; // 반사 텍스처
 
 import Chart from 'chart.js/auto'; // Chart.js 라이브러리
+(window as any).baby = baby;
 
 // DOMContentLoaded 이벤트 발생 시 실행
 window.addEventListener('DOMContentLoaded', () => {
@@ -265,6 +268,20 @@ window.addEventListener('DOMContentLoaded', () => {
   // Babylon.js 기본 설정
   let satellite: any = null;
   (window as any).satellite = null;
+  (window as any).z = function (cnt: number) {
+    satellite.rotate(Axis.Z, (Math.PI / 360) * cnt, Space.LOCAL);
+    console.log('Rotated Z by', (Math.PI / 360) * cnt);
+  };
+
+  (window as any).x = function (cnt: number) {
+    satellite.rotate(Axis.X, (Math.PI / 360) * cnt, Space.LOCAL);
+    console.log('Rotated X by', (Math.PI / 360) * cnt);
+  };
+
+  (window as any).y = function (cnt: number) {
+    satellite.rotate(Axis.Y, (Math.PI / 360) * cnt, Space.LOCAL);
+    console.log('Rotated Y by', (Math.PI / 360) * cnt);
+  };
 
   const canvas = document.getElementById('renderCanvas') as HTMLCanvasElement;
   if (!canvas) {
@@ -365,6 +382,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('z-minus')?.addEventListener('click', () => {
       sendWSMessage('6');
     });
+
     document.getElementById('x-rplus')?.addEventListener('click', () => {
       sendWSMessage('7');
     });
@@ -418,6 +436,20 @@ window.addEventListener('DOMContentLoaded', () => {
 
   engine.runRenderLoop(() => {
     scene.render(); // Babylon.js 렌더 루프 실행
+    // 위성의 현재 위치와 각도 콘솔 출력 (null/undefined 및 NaN 방지)
+    const satellite = (window as any).satellite;
+    if (satellite && satellite.position && satellite.rotation) {
+      const pos = satellite.position;
+      const rot = satellite.rotationQuaternion;
+
+      const px = typeof pos.x === 'number' ? pos.x.toFixed(2) : 'N/A';
+      const py = typeof pos.y === 'number' ? pos.y.toFixed(2) : 'N/A';
+      const pz = typeof pos.z === 'number' ? pos.z.toFixed(2) : 'N/A';
+      const rx = typeof rot.x === 'number' ? rot.x.toFixed(2) : 'N/A';
+      const ry = typeof rot.y === 'number' ? rot.y.toFixed(2) : 'N/A';
+      const rz = typeof rot.z === 'number' ? rot.z.toFixed(2) : 'N/A';
+      console.log(`위치: x=${px}, y=${py}, z=${pz} | 각도: x=${rx}, y=${ry}, z=${rz}`);
+    }
   });
 });
 
