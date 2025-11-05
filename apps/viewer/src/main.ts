@@ -441,6 +441,7 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 
   engine.runRenderLoop(() => {
+    const ag = { x: 10, y: 0, z: 0 };
     scene.render(); // Babylon.js 렌더 루프 실행
     // 위성의 현재 위치와 각도 콘솔 출력 (null/undefined 및 NaN 방지)
     const satellite = (window as any).satellite;
@@ -448,12 +449,13 @@ window.addEventListener('DOMContentLoaded', () => {
       const pos = satellite.position;
       const rot = satellite.rotationQuaternion;
       if (init === 1) {
-        // satellite.rotate(Axis.X, satellite.rotation.x, Space.LOCAL); // X축 회전
+        satellite.rotationQuaternion = baby.Quaternion.FromEulerAngles(Math.PI / ag.x, ag.y, ag.z);
+        // satellite.rotate(Axis.X, 0, Space.LOCAL); // X축 회전
 
-        satellite.rotate(Axis.Y, (0.57 * Math.PI) / 180, Space.LOCAL);
+        // satellite.rotate(Axis.Y, (0.57 * Math.PI) / 180, Space.LOCAL);
 
-        satellite.rotate(Axis.Z, (-0.82 * Math.PI) / 180, Space.LOCAL);
-        init = 2;
+        // satellite.rotate(Axis.Z, (-0.82 * Math.PI) / 180, Space.LOCAL);
+        // init = 2;
       }
 
       const px = typeof pos.x === 'number' ? pos.x.toFixed(2) : 'N/A';
