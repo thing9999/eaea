@@ -24,7 +24,7 @@ import specularTexture from '../public/specular2.jpg'; // 반사 텍스처
 
 import Chart from 'chart.js/auto'; // Chart.js 라이브러리
 (window as any).baby = baby;
-
+let init = 0;
 // DOMContentLoaded 이벤트 발생 시 실행
 window.addEventListener('DOMContentLoaded', () => {
   // X, Y, Z / 센서1~3 / 센서4~6을 각각 한 차트에 묶어서 표시
@@ -432,6 +432,12 @@ window.addEventListener('DOMContentLoaded', () => {
         satellite.position.z -= moveStep;
       }
     });
+
+    document.getElementById('init')?.addEventListener('click', () => {
+      if (init === 0) {
+        init = 1;
+      }
+    });
   });
 
   engine.runRenderLoop(() => {
@@ -441,6 +447,14 @@ window.addEventListener('DOMContentLoaded', () => {
     if (satellite && satellite.position && satellite.rotation) {
       const pos = satellite.position;
       const rot = satellite.rotationQuaternion;
+      if (init === 1) {
+        // satellite.rotate(Axis.X, satellite.rotation.x, Space.LOCAL); // X축 회전
+
+        satellite.rotate(Axis.Y, (0.57 * Math.PI) / 180, Space.LOCAL);
+
+        satellite.rotate(Axis.Z, (-0.82 * Math.PI) / 180, Space.LOCAL);
+        init = 2;
+      }
 
       const px = typeof pos.x === 'number' ? pos.x.toFixed(2) : 'N/A';
       const py = typeof pos.y === 'number' ? pos.y.toFixed(2) : 'N/A';
