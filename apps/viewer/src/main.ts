@@ -495,9 +495,16 @@ ws.onmessage = function (event) {
   const z = parseFloat(arr[2]);
   const satellite = (window as any).satellite;
   if (satellite && !isNaN(x) && !isNaN(y) && !isNaN(z)) {
-    const dx = x - prevX;
-    const dy = y - prevY;
-    const dz = z - prevZ;
+    let dx = x - prevX;
+    let dy = y - prevY;
+    let dz = z - prevZ;
+
+    if (dx < -180) dx += 360;
+    else if (dx > 180) dx -= 360;
+    if (dy < -180) dy += 360;
+    else if (dy > 180) dy -= 360;
+    if (dz < -180) dz += 360;
+    else if (dz > 180) dz -= 360;
 
     satellite.rotate(Axis.X, dx, Space.LOCAL); // X축 회전
     prevX = x;

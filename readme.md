@@ -1,5 +1,6 @@
 #nodejs 프로젝트이며 해당주소에서 시작전 사전 설치해주시기바랍니다.
 
+( 각 os 에 맞는 프로그램 설치 하시면됩니다. )
 https://nodejs.org/ko/download
 
 # 자세제어기

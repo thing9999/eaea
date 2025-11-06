@@ -37,7 +37,7 @@ port.on('data', (data) => {
   // 연결된 모든 클라이언트에게 메시지 전송
   wss.clients.forEach((client) => {
     if (client.readyState === 1) {
-      message.splint(data.cr).forEach((msg) => {
+      message.split(data.cr).forEach((msg) => {
         if (msg.toString().split(' ').length === splitCount) {
           client.send(msg);
         }
