@@ -1,3 +1,7 @@
+#nodejs 프로젝트이며 해당주소에서 시작전 사전 설치해주시기바랍니다.
+
+https://nodejs.org/ko/download
+
 # 자세제어기
 
     - viwer (client typesciprt)

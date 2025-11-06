@@ -499,13 +499,13 @@ ws.onmessage = function (event) {
     const dy = y - prevY;
     const dz = z - prevZ;
 
-    satellite.rotate(Axis.X, dx / 64, Space.LOCAL); // X축 회전
+    satellite.rotate(Axis.X, dx, Space.LOCAL); // X축 회전
     prevX = x;
 
-    satellite.rotate(Axis.Y, dy / 64, Space.LOCAL); // Y축 회전
+    satellite.rotate(Axis.Y, dy, Space.LOCAL); // Y축 회전
     prevY = y;
 
-    satellite.rotate(Axis.Z, dz / 64, Space.LOCAL); // Z축 회전
+    satellite.rotate(Axis.Z, dz, Space.LOCAL); // Z축 회전
     prevZ = z;
 
     console.log('위성 회전 적용(delta):', dx, dy, dz);

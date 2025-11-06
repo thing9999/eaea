@@ -3,5 +3,10 @@
   "private": true,
   "workspaces": [
     "apps/*"
-  ]
+  ],
+  "scripts": {
+    "com": "npm --prefix apps\\serial run dev",
+    "view": "npm --prefix apps\\viewer run dev",
+    "both": "npm run com && npm run view"
+  }
 }
